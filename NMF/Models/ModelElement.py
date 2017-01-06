@@ -16,8 +16,8 @@ class ModelElement(object):
 		self._deleting = False
 		self._Model = None
 		self.RelativeUri = None
-		self.AbsoluteUri = None		
-		self.Deleted = EventHandler()
+		self.AbsoluteUri = None					
+		self.Deleted = EventHandler()			
 
 	@property
 	def Model(self):

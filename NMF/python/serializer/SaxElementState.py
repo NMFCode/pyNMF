@@ -120,8 +120,7 @@ class SAXElementState (object):
         @param attrs: The XML attributes associated with the element
         @type attrs: C{xml.sax.xmlreader.Attributes}
         @return: The generated binding instance
-        """        
-        print("\tstartBindingElement")
+        """                
         self.__constructElement(type_class, attrs)
         return self.__bindingInstance
 
@@ -135,8 +134,8 @@ class SAXElementState (object):
         tc = self.__targetContainer        
         if self.__targetContainer != None:
             self.__targetContainer.Add(self.__bindingInstance) 
-        else:
-            print(str(self.__bindingInstance) + " DOES NOT HAVE CONTAINER. IS ROOT ELEMENT?")            
+        # else:
+        #     print(str(self.__bindingInstance) + " DOES NOT HAVE A CONTAINER. IS ROOT ELEMENT?")            
         return self.__bindingInstance
 
     #handles the parsing and resolving attributes for an element

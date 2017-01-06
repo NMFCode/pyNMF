@@ -8,7 +8,7 @@ class EventHandler(object):
 		pass	
 		
 	def __iadd__(self, other):
-		pass
+		return self
 
 	def __isub__(self, other):
-		pass
+		return self

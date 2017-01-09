@@ -4,55 +4,33 @@ from pdb import set_trace as bp
 
 class SAXElementState (object):
     """State required to generate bindings for a specific element."""
-
-    # The binding instance being created for this element.
-    __bindingInstance = None
-
-    # The schema binding for the element being constructed.
-    __elementBinding = None
-
-    def setElementBinding(self, element_binding):
-        """Record the binding to be used for this element.
-
-        Generally ignored, except at the top level this is the only way to
-        associate a binding instance created from an xsi:type description with
-        a specific element."""
-        self.__elementBinding = element_binding
-
-    def setTargetContainer(self, target_container):
-        self.targetContainer = target_container
-
-
-    def getTargetContainer(self):
-        return self.targetContainer
-
-    def getElementBinding(self):
-        return self.__elementBinding
-
-    def getBindingInstance(self):
-        return self.__bindingInstance
-
+    
     def __init__(self, **kw):
         super(SAXElementState, self).__init__()
-        self.__bindingInstance = None
-        self.__parentState = kw.get('parent_state')
-        self.__contentHandler = kw.get('content_handler')
+        # The binding instance being created for this element.
+        self.bindingInstance = None
+        # The schema binding for the element being constructed.
+        # Generally ignored, except at the top level this is the only way to
+        # associate a binding instance created from an xsi:type description with
+        # a specific element
+        self.elementBinding = None
+        self.parentState = kw.get('parent_state', None)
+        self.__contentHandler = kw.get('content_handler', None)
         self.targetContainer = None
         self.__content = []
-        parent_state = self.parentState()
 
     # Create the binding instance for this element.
     def __constructElement(self, type_class, attrs, constructor_parameters=None):
 
         if constructor_parameters is None:
             constructor_parameters = []
-        self.__bindingInstance = type_class(*constructor_parameters)
+        self.bindingInstance = type_class(*constructor_parameters)
 
 
         self.attrs = attrs
 
 
-        return self.__bindingInstance
+        return self.bindingInstance
 
     def startBindingElement(self, type_class, attrs):
         """Actions upon entering an element that will produce a binding instance.
@@ -65,7 +43,7 @@ class SAXElementState (object):
         @return: The generated binding instance
         """
         self.__constructElement(type_class, attrs)
-        return self.__bindingInstance
+        return self.bindingInstance
 
     def endBindingElement(self):
         """Perform any end-of-element processing."""
@@ -76,10 +54,10 @@ class SAXElementState (object):
         #if it's None it's the root element which is not contained anywhere
         tc = self.targetContainer
         if self.targetContainer != None:
-            self.targetContainer.Add(self.__bindingInstance)
+            self.targetContainer.Add(self.bindingInstance)
         # else:
-        #     print(str(self.__bindingInstance) + " DOES NOT HAVE A CONTAINER. IS ROOT ELEMENT?")
-        return self.__bindingInstance
+        #     print(str(self.bindingInstance) + " DOES NOT HAVE A CONTAINER. IS ROOT ELEMENT?")
+        return self.bindingInstance
 
     #handles the parsing and resolving attributes for an element
     def parseAttributes(self):
@@ -105,7 +83,7 @@ class SAXElementState (object):
                     attr_container = attr_container.upper()
 
                     try:
-                        value = self.parentState().getBindingInstance().GetModelElementForReference(attr_container, index)
+                        value = self.parentState.bindingInstance.GetModelElementForReference(attr_container, index)
                     except Exception, e:
                         from pdb import set_trace
                         set_trace()
@@ -116,18 +94,10 @@ class SAXElementState (object):
             plain_name = str(plain_name)
             if (isinstance(value, unicode)):
                 value = str(value)
-            self.__bindingInstance.SetFeature(plain_name, value)
+            self.bindingInstance.SetFeature(plain_name, value)
 
 
     def contentHandler(self):
         """Reference to the xml.sax.handler.ContentHandler that is processing the document."""
         return self.__contentHandler
     __contentHandler = None
-
-    def parentState(self):
-        """Reference to the SAXElementState of the element enclosing this one."""
-        return self.__parentState
-    __parentState = None
-
-    def setParentState(self, new_parentState):
-        self.__parentState = new_parentState

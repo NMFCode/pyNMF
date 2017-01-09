@@ -32,23 +32,23 @@ class ModelContentHandler(BaseSAXHandler):
         # so ignore in case of root
         fullAttrTypeName = "typeArgsOf" + plain_name  # typeArgsOfSOMETHING gets automatically generated into the result
 
-        if hasattr(parent_state.getElementBinding(), fullAttrTypeName): #check if parent knows what type the element should be
-            ele_bind = getattr(parent_state.getElementBinding(), fullAttrTypeName)
+        if hasattr(parent_state.elementBinding, fullAttrTypeName): #check if parent knows what type the element should be
+            ele_bind = getattr(parent_state.elementBinding, fullAttrTypeName)
             if (len(ele_bind) != 1):
                 raise Exception("Type " + plain_name + " has more than one type argument. Unkown collection type.")
-            this_state.setElementBinding(ele_bind[0])
+            this_state.elementBinding = ele_bind[0]
 
             #since it's a child it has to be contained in a collection, resolve the collection the bindin_instance will be put in
             #maybe change after model repositories are implemented
-            this_state.setTargetContainer(this_state.parentState().getBindingInstance().GetCollectionForFeature(plain_name))
+            this_state.targetContainer = this_state.parentState.bindingInstance.GetCollectionForFeature(plain_name)
 
         elif (plain_name in self.types_dict): #is root element
             print(plain_name + " is the root element")
-            this_state.setElementBinding(self.types_dict[plain_name])
+            this_state.elementBinding = self.types_dict[plain_name]
         else:
             raise Exception("FATAL ERROR: Unkown type " + name[1] + "!")
 
-        binding_object = this_state.startBindingElement(this_state.getElementBinding(), attrs)
+        binding_object = this_state.startBindingElement(this_state.elementBinding, attrs)
 
         if (self.rootObject is None):
             self.rootObject = binding_object
@@ -56,7 +56,7 @@ class ModelContentHandler(BaseSAXHandler):
             #replace dummy parent state of root with itself
             #TODO: AFTER MODEL REPOSITORY RESOLVE WAS IMPLEMENTED
             #REMOVE THIS/ THIS IS ONLY A TEMPORARY WORKAROUND
-            this_state.setParentState(this_state)
+            this_state.parentState = this_state
 
 
 

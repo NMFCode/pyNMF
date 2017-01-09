@@ -47,17 +47,6 @@ class SAXElementState (object):
     def getBindingInstance(self):
         return self.__bindingInstance
 
-    # The nearest enclosing complex type definition
-    def enclosingCTD(self):
-        """The nearest enclosing complex type definition, as used for
-        resolving local element/attribute names. (aka. parent)
-
-        @return: An instance of L{basis.complexTypeDefinition}, or C{None} if
-        the element is top-level
-        """
-        return self.__enclosingCTD
-    __enclosingCTD = None
-
     # The factory that is called to create a binding instance for this
     # element; None if the binding instance was created at the start
     # of the element.
@@ -69,20 +58,7 @@ class SAXElementState (object):
         self.__parentState = kw.get('parent_state')
         self.__contentHandler = kw.get('content_handler')
         self.__content = []
-        parent_state = self.parentState()
-
-        if parent_state is not None:
-            self.__enclosingCTD = parent_state.enclosingCTD()            
-
-    def setEnclosingCTD(self, enclosing_ctd):
-        print("\tSet Enclosing CTD to " + str(enclosing_ctd))
-        """Set the enclosing complex type definition for this element.
-
-        @param enclosing_ctd: The scope for a local element.
-        @type enclosing_ctd: L{basis.complexTypeDefinition}
-        @return: C{self}
-        """
-        self.__enclosingCTD = enclosing_ctd
+        parent_state = self.parentState()    
 
     # Create the binding instance for this element.
     def __constructElement(self, type_class, attrs, constructor_parameters=None):

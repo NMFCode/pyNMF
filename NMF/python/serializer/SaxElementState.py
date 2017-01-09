@@ -2,25 +2,10 @@ from pdb import set_trace as bp
 # def bp():
 #     pass
 
-class XSINil(object):
-    """docstring for XSINil"""
-    def __init__(self):
-        super(XSINil, self).__init__()
-
-
 class SAXElementState (object):
     """State required to generate bindings for a specific element."""
 
-    # An expanded name corresponding to xsi:nil
-    __XSINilTuple = XSINil
-
-    # The binding instance being created for this element.  When the
-    # element type has simple content, the binding instance cannot be
-    # created until the end of the element has been reached and the
-    # content of the element has been processed accumulated for use in
-    # the instance constructor.  When the element type has complex
-    # content, the binding instance must be created at the start of
-    # the element, so contained elements can be properly stored.
+    # The binding instance being created for this element.
     __bindingInstance = None
 
     # The schema binding for the element being constructed.
@@ -35,11 +20,11 @@ class SAXElementState (object):
         self.__elementBinding = element_binding
 
     def setTargetContainer(self, target_container):
-        self.__targetContainer = target_container
-    __targetContainer = None
+        self.targetContainer = target_container
+
 
     def getTargetContainer(self):
-        return self.__targetContainer
+        return self.targetContainer
 
     def getElementBinding(self):
         return self.__elementBinding
@@ -47,18 +32,14 @@ class SAXElementState (object):
     def getBindingInstance(self):
         return self.__bindingInstance
 
-    # The factory that is called to create a binding instance for this
-    # element; None if the binding instance was created at the start
-    # of the element.
-    __delayedConstructor = None
-
     def __init__(self, **kw):
         super(SAXElementState, self).__init__()
         self.__bindingInstance = None
         self.__parentState = kw.get('parent_state')
         self.__contentHandler = kw.get('content_handler')
+        self.targetContainer = None
         self.__content = []
-        parent_state = self.parentState()    
+        parent_state = self.parentState()
 
     # Create the binding instance for this element.
     def __constructElement(self, type_class, attrs, constructor_parameters=None):
@@ -93,9 +74,9 @@ class SAXElementState (object):
 
         # add to parent
         #if it's None it's the root element which is not contained anywhere
-        tc = self.__targetContainer
-        if self.__targetContainer != None:
-            self.__targetContainer.Add(self.__bindingInstance)
+        tc = self.targetContainer
+        if self.targetContainer != None:
+            self.targetContainer.Add(self.__bindingInstance)
         # else:
         #     print(str(self.__bindingInstance) + " DOES NOT HAVE A CONTAINER. IS ROOT ELEMENT?")
         return self.__bindingInstance
@@ -138,15 +119,13 @@ class SAXElementState (object):
             self.__bindingInstance.SetFeature(plain_name, value)
 
 
-
     def contentHandler(self):
         """Reference to the xml.sax.handler.ContentHandler that is processing the document."""
         return self.__contentHandler
     __contentHandler = None
 
     def parentState(self):
-        """Reference to the SAXElementState of the element enclosing this
-        one."""
+        """Reference to the SAXElementState of the element enclosing this one."""
         return self.__parentState
     __parentState = None
 

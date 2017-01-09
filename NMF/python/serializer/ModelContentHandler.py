@@ -65,10 +65,6 @@ class ModelContentHandler(BaseSAXHandler):
     	binding_object = this_state.endBindingElement()
         self.delayedAttributeStates.append(this_state)
 
-
-    def startBindingElement(type):
-    	pass
-
     def endDocument(self):
         for s in self.delayedAttributeStates:
             s.parseAttributes()

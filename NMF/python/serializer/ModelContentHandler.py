@@ -1,13 +1,6 @@
 
 from SaxElementState import SAXElementState
 from BaseSAXHandler import BaseSAXHandler
-
-if False:
-    from pdb import set_trace as bp
-else:
-    global bp
-    def bp():
-	   pass
 		
 
 class ModelContentHandler(BaseSAXHandler):
@@ -19,7 +12,6 @@ class ModelContentHandler(BaseSAXHandler):
         self.rootObject = None
 
     def startElementNS(self, name, qname, attrs):
-    	bp()
     	this_state, parent_state = super(ModelContentHandler, self).startElementNS(name, qname, attrs)
         plain_name = name[1].encode('ascii', errors='ignore') #cannot handle unicode named attributes, convert everything to ascii        
         plain_name = plain_name.upper() #this convention is in the C# code, too

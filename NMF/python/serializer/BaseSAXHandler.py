@@ -9,8 +9,7 @@ class BaseSAXHandler (xml.sax.handler.ContentHandler, object):
     """A SAX handler class that maintains a stack of enclosing elements and
     manages namespace declarations.
 
-    This is the base for L{pyxb.utils.saxdom._DOMSAXHandler} and
-    L{pyxb.binding.saxer.PyXBSAXHandler}.
+    This is the base for ModelContentHandler
     """
 
     # The state for the element currently being processed
@@ -24,21 +23,9 @@ class BaseSAXHandler (xml.sax.handler.ContentHandler, object):
     # the current element will always be the top element
     __elementStateStack = []
 
-    def rootObject(self):
-        """Return the binding object corresponding to the top-most
-        element in the document
-
-        @return: An instance of the top-most element in the document"""
-        bp()
-        print("##### THIS WILL PROBABLY NEVER BE EXECUTED")
-        return self.__rootObject
-    __rootObject = None
-
     def reset(self):
         """Reset the state of the handler in preparation for processing a new
         document.
-
-        @return: C{self}
         """
         bp()
         self.__elementState = self.__elementStateConstructor(content_handler=self)
@@ -49,7 +36,7 @@ class BaseSAXHandler (xml.sax.handler.ContentHandler, object):
         return self
 
     def __init__(self, **kw):
-        """Create a new C{xml.sax.handler.ContentHandler} instance to maintain state relevant to elements."""                
+        """Create a new xml.sax.handler.ContentHandler instance to maintain state relevant to elements."""                
         bp()
         self.__elementStateConstructor = SAXElementState
 

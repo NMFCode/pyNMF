@@ -6,15 +6,10 @@ class XSINil(object):
     """docstring for XSINil"""
     def __init__(self):
         super(XSINil, self).__init__()
-        
+
 
 class SAXElementState (object):
-    """State required to generate bindings for a specific element.
-
-    If the document being parsed includes references to unrecognized elements,
-    a DOM instance of the element and its content is created and treated as a
-    wildcard element.
-    """
+    """State required to generate bindings for a specific element."""
 
     # An expanded name corresponding to xsi:nil
     __XSINilTuple = XSINil
@@ -44,7 +39,7 @@ class SAXElementState (object):
     __targetContainer = None
 
     def getTargetContainer(self):
-        return self.__targetContainer        
+        return self.__targetContainer
 
     def getElementBinding(self):
         return self.__elementBinding
@@ -55,7 +50,7 @@ class SAXElementState (object):
     # The nearest enclosing complex type definition
     def enclosingCTD(self):
         """The nearest enclosing complex type definition, as used for
-        resolving local element/attribute names.
+        resolving local element/attribute names. (aka. parent)
 
         @return: An instance of L{basis.complexTypeDefinition}, or C{None} if
         the element is top-level
@@ -66,12 +61,7 @@ class SAXElementState (object):
     # The factory that is called to create a binding instance for this
     # element; None if the binding instance was created at the start
     # of the element.
-    __delayedConstructor = None    
-
-    # An xml.dom.Node corresponding to the (sub-)document
-    __domDocument = None
-
-    __domDepth = None
+    __delayedConstructor = None
 
     def __init__(self, **kw):
         super(SAXElementState, self).__init__()
@@ -80,13 +70,9 @@ class SAXElementState (object):
         self.__contentHandler = kw.get('content_handler')
         self.__content = []
         parent_state = self.parentState()
-        
+
         if parent_state is not None:
-            self.__enclosingCTD = parent_state.enclosingCTD()
-            self.__domDocument = parent_state.__domDocument
-        if self.__domDocument is not None:
-            print("__domDocument: is not None")
-            self.__domDepth = parent_state.__domDepth + 1        
+            self.__enclosingCTD = parent_state.enclosingCTD()            
 
     def setEnclosingCTD(self, enclosing_ctd):
         print("\tSet Enclosing CTD to " + str(enclosing_ctd))
@@ -100,14 +86,14 @@ class SAXElementState (object):
 
     # Create the binding instance for this element.
     def __constructElement(self, type_class, attrs, constructor_parameters=None):
-        
+
         if constructor_parameters is None:
             constructor_parameters = []
         self.__bindingInstance = type_class(*constructor_parameters)
-        
+
 
         self.attrs = attrs
-        
+
 
         return self.__bindingInstance
 
@@ -116,62 +102,61 @@ class SAXElementState (object):
 
         Wrapper for constructElement
 
-        @param type_class: The Python type (class) of the binding instance                    
+        @param type_class: The Python type (class) of the binding instance
         @param attrs: The XML attributes associated with the element
         @type attrs: C{xml.sax.xmlreader.Attributes}
         @return: The generated binding instance
-        """                
+        """
         self.__constructElement(type_class, attrs)
         return self.__bindingInstance
 
     def endBindingElement(self):
         """Perform any end-of-element processing."""
 
-        #at this point only the element instance exists, it is not populated yet
-        #add to parent        
-        
-        #if it's None it's the root element which is not contained anywhere        
-        tc = self.__targetContainer        
+        # at this point only the element instance exists, it is not populated yet
+
+        # add to parent
+        #if it's None it's the root element which is not contained anywhere
+        tc = self.__targetContainer
         if self.__targetContainer != None:
-            self.__targetContainer.Add(self.__bindingInstance) 
+            self.__targetContainer.Add(self.__bindingInstance)
         # else:
-        #     print(str(self.__bindingInstance) + " DOES NOT HAVE A CONTAINER. IS ROOT ELEMENT?")            
+        #     print(str(self.__bindingInstance) + " DOES NOT HAVE A CONTAINER. IS ROOT ELEMENT?")
         return self.__bindingInstance
 
     #handles the parsing and resolving attributes for an element
     def parseAttributes(self):
-        # Set instance attributes    
+        # Set instance attributes
         #bp()
         for attr_name in self.attrs.getNames():
-            
-            # Ignore xmlns and xsi attributes
 
+            # Ignore xmlns and xsi attributes
             if (attr_name[0] is not None and attr_name[0] in ("http://www.omg.org/XMI")):
                 continue
 
-            # attributes           
+            # attributes
             plain_name = attr_name[1].encode('ascii', errors='ignore')
-            plain_name = plain_name.upper()               
+            plain_name = plain_name.upper()
             value = self.attrs.getValue(attr_name)
 
             if (value[:2] == '//'):
                 if(value[2] == '@'):
-                    #TODO: not only support parent container references...
+                    #TODO: not only support parent container references... REDO when Model Repositroy is implemented
                     value = (value[3:]).encode('ascii', errors='ignore')
                     attr_container, index = value.split('.')
                     index = int(index)
-                    attr_container = attr_container.upper()    
+                    attr_container = attr_container.upper()
 
-                    try:             
-                        value = self.parentState().getBindingInstance().GetModelElementForReference(attr_container, index)                    
+                    try:
+                        value = self.parentState().getBindingInstance().GetModelElementForReference(attr_container, index)
                     except Exception, e:
                         from pdb import set_trace
                         set_trace()
                         raise e
-                else:                    
-                    print("ERROR: XLinks are not supported (" + value + ")")                    
+                else:
+                    print("ERROR: XLinks are not supported (" + value + ")")
                     continue
-            plain_name = str(plain_name)            
+            plain_name = str(plain_name)
             if (isinstance(value, unicode)):
                 value = str(value)
             self.__bindingInstance.SetFeature(plain_name, value)
@@ -179,14 +164,14 @@ class SAXElementState (object):
 
 
     def contentHandler(self):
-        """Reference to the C{xml.sax.handler.ContentHandler} that is processing the document."""
+        """Reference to the xml.sax.handler.ContentHandler that is processing the document."""
         return self.__contentHandler
     __contentHandler = None
 
     def parentState(self):
         """Reference to the SAXElementState of the element enclosing this
         one."""
-        return self.__parentState        
+        return self.__parentState
     __parentState = None
 
     def setParentState(self, new_parentState):

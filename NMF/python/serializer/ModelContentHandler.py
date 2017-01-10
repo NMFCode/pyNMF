@@ -70,12 +70,8 @@ class ModelContentHandler(BaseSAXHandler):
         self.delayedPropertySettings += newPropertySettings
 
     def endDocument(self):
-        for d in self.delayedCollectionAdditions:            
-            d.execute()        
-        for d in self.delayedPropertySettings:
-            print("cd", d.propertyName)
+        for d in self.delayedCollectionAdditions:
             d.execute()
-        
 
-
-        
+        for d in self.delayedPropertySettings:
+            d.execute()

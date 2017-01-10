@@ -3,9 +3,12 @@ from XmlIdentifierDelay import XmlAddToCollectionDelay, XmlSetPropertyDelay
 # def bp():
 #     pass
 
+XMI_NS = "http://www.omg.org/XMI"
+XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
+
 class SAXElementState (object):
     """State required to generate bindings for a specific element."""
-    
+
     def __init__(self, **kw):
         super(SAXElementState, self).__init__()
         # The binding instance being created for this element.
@@ -25,9 +28,24 @@ class SAXElementState (object):
     def __constructElement(self, type_class, attrs, constructor_parameters=None):
 
         if constructor_parameters is None:
-            constructor_parameters = []        
+            constructor_parameters = []
 
-        self.bindingInstance = type_class(*constructor_parameters)
+        xsiAttrs = filter(lambda x: x[0] == XSI_NS, attrs.getNames())
+        for attr in xsiAttrs:
+            if (attr[1] == 'type'):
+                cls_name = attrs.getValue(attr).upper()
+                if (cls_name in self.__contentHandler.types_dict):
+                    self.bindingInstance = self.__contentHandler.types_dict[cls_name](*constructor_parameters)
+                else:
+                    raise Exception("Unkown type " + cls_name + " when trying to resolve xsi type")
+            elif (attr[1] == 'nil'):
+                # TODO
+                pass
+            else:
+                raise Exception("Unkown XSI Attribute " + attr[1])
+
+        if self.bindingInstance == None:
+            self.bindingInstance = type_class(*constructor_parameters)
 
         self.parseAttributes(attrs)
 
@@ -66,8 +84,8 @@ class SAXElementState (object):
         for attr_name in attrs.getNames():
 
             # Ignore xmlns and xsi attributes
-            if (attr_name[0] is not None and attr_name[0] in ("http://www.omg.org/XMI", "http://www.w3.org/2001/XMLSchema-instance")):
-                print("XMI attr: " + attr_name[0] + " " + attr_name[1])
+            if (attr_name[0] is not None and attr_name[0] in (XMI_NS, XSI_NS)):
+                #print("XMI attr: " + attr_name[0] + " " + attr_name[1])
                 #Ignore, we already handled those
                 continue
             value = attrs.getValue(attr_name)
@@ -80,7 +98,7 @@ class SAXElementState (object):
         if (attr == None):
             return
         if (isinstance(attr, tuple)):
-            if (attr[0] is not None and attr[0] in ("http://www.omg.org/XMI", "http://www.w3.org/2001/XMLSchema-instance")):                
+            if (attr[0] is not None and attr[0] in (XMI_NS, XSI_NS)):
                 print("Error: Cannot set xsi/xmi attributes after instance initialization")
                 return
             attr = attr[1] #ignore namespace
@@ -108,7 +126,7 @@ class SAXElementState (object):
         else:
             if (isinstance(value, unicode)):
                 value = str(value)
-            #is bool or number            
+            #is bool or number
             if (value in ('True', 'true')):
                 value = True
             elif (value in ('False', 'false')):

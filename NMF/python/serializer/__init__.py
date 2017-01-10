@@ -12,7 +12,7 @@ def serialize(xml_doc, types):
     # create lookup dict
     types_dict = {}
     for t in types:
-        types_dict[t.__name__.upper()] = t    
+        types_dict[t.__name__.upper()] = t
     print types_dict
     # setup parser
     parser = xml.sax.make_parser()

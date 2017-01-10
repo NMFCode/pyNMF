@@ -4,7 +4,7 @@ class XmlIdentifierDelay(object):
 		super(XmlIdentifierDelay, self).__init__()
 		self.saxState = saxState
 
-	def OnResolveIdentifiedObject(self):
+	def execute(self):
 		raise Exception("Not implemented")
 
 
@@ -14,19 +14,15 @@ class XmlAddToCollectionDelay(XmlIdentifierDelay):
 		super(XmlAddToCollectionDelay, self).__init__(saxState)
 		self.targetCollection = targetCollection
 
-	def OnResolveIdentifiedObject(self):
-		targetCollection.Add(saxState.bindingInstance)
+	def execute(self):
+		self.targetCollection.Add(self.saxState.bindingInstance)
 
 class XmlSetPropertyDelay(XmlIdentifierDelay):
-	"""docstring for XmlAddPropertyDelay"""
+	"""docstring for XmlSetPropertyDelay"""
 	def __init__(self, saxState, propertyName, value):
-		super(XmlAddPropertyDelay, self).__init__(saxState)
+		super(XmlSetPropertyDelay, self).__init__(saxState)
 		self.propertyName = propertyName
 		self.value = value
 
-	def OnResolveIdentifiedObject(self):
-		setattr(self.saxState.bindingInstance, self.propertyName, self.value)
-		
-		
-		
-		
+	def execute(self):
+		self.saxState.parseAttribute(self.propertyName, self.value)

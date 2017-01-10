@@ -11,12 +11,13 @@ class ModelContentHandler(BaseSAXHandler):
         # delayAttributeStates gets iterated over when done parsing.
         # All the attributes are set as a last step to ensure,
         # references to instances can be resolved (see endDocument)
-        self.delayedAttributeStates = []
+        self.delayedPropertySettings = []
+        self.delayedCollectionAdditions = []
         self.rootObject = None
 
     def startElementNS(self, name, qname, attrs):
         """Parses an XML element"""
-    	this_state, parent_state = super(ModelContentHandler, self).startElementNS(name, qname, attrs)
+    	thisState, parent_state = super(ModelContentHandler, self).startElementNS(name, qname, attrs)
 
         # cannot handle unicode named attributes, convert everything to ascii
         plain_name = name[1].encode('ascii', errors='ignore')
@@ -36,19 +37,21 @@ class ModelContentHandler(BaseSAXHandler):
             ele_bind = getattr(parent_state.elementBinding, fullAttrTypeName)
             if (len(ele_bind) != 1):
                 raise Exception("Type " + plain_name + " has more than one type argument. Unkown collection type.")
-            this_state.elementBinding = ele_bind[0]
+            thisState.elementBinding = ele_bind[0]
 
-            #since it's a child it has to be contained in a collection, resolve the collection the bindin_instance will be put in
-            #maybe change after model repositories are implemented
-            this_state.targetContainer = this_state.parentState.bindingInstance.GetCollectionForFeature(plain_name)
+            # since it's a child it has to be contained in a collection,
+            # resolve the collection the bindin_instance will be put in
+            # maybe change after model repositories are implemented
+            thisState.addCollectionAdditionDelay(
+                thisState.parentState.bindingInstance.GetCollectionForFeature(plain_name))
 
         elif (plain_name in self.types_dict): #is root element
             print(plain_name + " is the root element")
-            this_state.elementBinding = self.types_dict[plain_name]
+            thisState.elementBinding = self.types_dict[plain_name]
         else:
             raise Exception("FATAL ERROR: Unkown type " + name[1] + "!")
 
-        binding_object = this_state.startBindingElement(this_state.elementBinding, attrs)
+        binding_object = thisState.startBindingElement(thisState.elementBinding, attrs)
 
         if (self.rootObject is None):
             self.rootObject = binding_object
@@ -56,15 +59,23 @@ class ModelContentHandler(BaseSAXHandler):
             #replace dummy parent state of root with itself
             #TODO: AFTER MODEL REPOSITORY RESOLVE WAS IMPLEMENTED
             #REMOVE THIS/ THIS IS ONLY A TEMPORARY WORKAROUND
-            this_state.parentState = this_state
+            thisState.parentState = thisState
 
 
 
     def endElementNS(self, name, qname):
-    	this_state = super(ModelContentHandler, self).endElementNS(name, qname)
-    	binding_object = this_state.endBindingElement()
-        self.delayedAttributeStates.append(this_state)
+    	thisState = super(ModelContentHandler, self).endElementNS(name, qname)
+    	bindingObject, newCollectionAdditions, newPropertySettings = thisState.endBindingElement()
+        self.delayedCollectionAdditions += newCollectionAdditions
+        self.delayedPropertySettings += newPropertySettings
 
     def endDocument(self):
-        for s in self.delayedAttributeStates:
-            s.parseAttributes()
+        for d in self.delayedCollectionAdditions:            
+            d.execute()        
+        for d in self.delayedPropertySettings:
+            print("cd", d.propertyName)
+            d.execute()
+        
+
+
+        

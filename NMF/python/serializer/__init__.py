@@ -23,6 +23,7 @@ def serialize(xml_doc, types):
     parser.parse(io.BytesIO(xml_doc))
     return content_handler.rootObject
 
+
 if __name__ == '__main__':
     with open('My.xmi', 'r') as xml_doc:
         CreateFromDocument(xml_doc.read())

@@ -1,4 +1,3 @@
-
 # Copyright (C) 2016 Adrian Cristea adrian dot cristea at gmail dotcom
 #
 # Based on an idea by Peter Thatcher, found on
@@ -370,6 +369,7 @@ class Event(object):
     __call__ = fire
     __len__ = count
 
+
 class spawn_thread(Thread):
     """ Spawns a new thread and returns the execution result """
 
@@ -389,16 +389,18 @@ class spawn_thread(Thread):
         finally:
             del self._target, self._args, self._kwargs
 
+
 class EventHandler(Event):
-	"""docstring for EventHandler"""
-	def __init__(self):
-		super(EventHandler, self).__init__()
+    """docstring for EventHandler"""
 
-	def Invoke(self, sender, eventArgs):
-		self.fire(sender, eventArgs)
-		
-	# def __iadd__(self, other):
-	# 	return self
+    def __init__(self):
+        super(EventHandler, self).__init__()
 
-	# def __isub__(self, other):
-	# 	return self
+    def Invoke(self, sender, eventArgs):
+        self.fire(sender, eventArgs)
+
+        # def __iadd__(self, other):
+        # 	return self
+
+        # def __isub__(self, other):
+        # 	return self

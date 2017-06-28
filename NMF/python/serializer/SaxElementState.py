@@ -1,12 +1,14 @@
 from pdb import set_trace as bp
 from XmlIdentifierDelay import XmlAddToCollectionDelay, XmlSetPropertyDelay
+
 # def bp():
 #     pass
 
 XMI_NS = "http://www.omg.org/XMI"
 XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
 
-class SAXElementState (object):
+
+class SAXElementState(object):
     """State required to generate bindings for a specific element."""
 
     def __init__(self, **kw):
@@ -35,7 +37,8 @@ class SAXElementState (object):
             if (attr[1] == 'type'):
                 cls_name = attrs.getValue(attr).upper()
                 if (cls_name in self.__contentHandler.types_dict):
-                    self.bindingInstance = self.__contentHandler.types_dict[cls_name](*constructor_parameters)
+                    self.bindingInstance = self.__contentHandler.types_dict[cls_name](
+                        *constructor_parameters)
                 else:
                     raise Exception("Unkown type " + cls_name + " when trying to resolve xsi type")
             elif (attr[1] == 'nil'):
@@ -75,18 +78,16 @@ class SAXElementState (object):
         # at this point only the element instance exists, it is not populated yet
         return (self.bindingInstance, self._collectionAdditions, self._propertySettings)
 
-
-
-    #decides if an attribute can be handled or should be later
+    # decides if an attribute can be handled or should be later
     def parseAttributes(self, attrs):
         # Set instance attributes
-        #bp()
+        # bp()
         for attr_name in attrs.getNames():
 
             # Ignore xmlns and xsi attributes
             if (attr_name[0] is not None and attr_name[0] in (XMI_NS, XSI_NS)):
-                #print("XMI attr: " + attr_name[0] + " " + attr_name[1])
-                #Ignore, we already handled those
+                # print("XMI attr: " + attr_name[0] + " " + attr_name[1])
+                # Ignore, we already handled those
                 continue
             value = attrs.getValue(attr_name)
             if (value[:2] == '//'):
@@ -101,32 +102,32 @@ class SAXElementState (object):
             if (attr[0] is not None and attr[0] in (XMI_NS, XSI_NS)):
                 print("Error: Cannot set xsi/xmi attributes after instance initialization")
                 return
-            attr = attr[1] #ignore namespace
+            attr = attr[1]  # ignore namespace
 
-        if (value[:2] == '//'):
-                if(value[2] == '@'):
-                    #TODO: not only support parent container references... REDO when Model Repositroy is implemented
-                    value = (value[3:]).encode('ascii', errors='ignore')
-                    attr_container, index = value.split('.')
-                    index = int(index)
-                    attr_container = attr_container.upper()
-                    attr_container = str(attr_container)
-                    try:
-                        value = self.parentState.bindingInstance.GetModelElementForReference(
-                            attr_container, index)
-                    except Exception, e:
-                        from pdb import set_trace
-                        set_trace()
-                        value = self.parentState.bindingInstance.GetModelElementForReference(
-                            attr_container, index)
-                        raise e
-                else:
-                    print("ERROR: XLinks are not supported, skipping (" + self.value + ")")
-                    return
+        if value[:2] == '//':
+            if value[2] == '@':
+                # TODO: not only support parent container references... REDO when Model Repositroy is implemented
+                value = (value[3:]).encode('ascii', errors='ignore')
+                attr_container, index = value.split('.')
+                index = int(index)
+                attr_container = attr_container.upper()
+                attr_container = str(attr_container)
+                try:
+                    value = self.parentState.bindingInstance.GetModelElementForReference(
+                        attr_container, index)
+                except Exception, e:
+                    from pdb import set_trace
+                    set_trace()
+                    value = self.parentState.bindingInstance.GetModelElementForReference(
+                        attr_container, index)
+                    raise e
+            else:
+                print("ERROR: XLinks are not supported, skipping (" + self.value + ")")
+                return
         else:
             if (isinstance(value, unicode)):
                 value = str(value)
-            #is bool or number
+            # is bool or number
             if (value in ('True', 'true')):
                 value = True
             elif (value in ('False', 'false')):
@@ -143,7 +144,7 @@ class SAXElementState (object):
                     else:
                         value = tmpv
 
-        #setattr(self.saxState.bindingInstance, self.propertyName, self.value)
+        # setattr(self.saxState.bindingInstance, self.propertyName, self.value)
         plain_name = attr.encode('ascii', errors='ignore')
         plain_name = plain_name.upper()
         self.bindingInstance.SetFeature(plain_name, value)
@@ -151,4 +152,5 @@ class SAXElementState (object):
     def contentHandler(self):
         """Reference to the xml.sax.handler.ContentHandler that is processing the document."""
         return self.__contentHandler
+
     __contentHandler = None

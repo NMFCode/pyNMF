@@ -1,11 +1,13 @@
 import xml
 from SaxElementState import SAXElementState
 
-#from pdb import set_trace as bp
+
+# from pdb import set_trace as bp
 def bp():
     pass
 
-class BaseSAXHandler (xml.sax.handler.ContentHandler, object):
+
+class BaseSAXHandler(xml.sax.handler.ContentHandler, object):
     """A SAX handler class that maintains a stack of enclosing elements and
     manages namespace declarations.
 
@@ -16,6 +18,7 @@ class BaseSAXHandler (xml.sax.handler.ContentHandler, object):
     def elementState(self):
         bp()
         return self.__elementState
+
     __elementState = None
 
     # The states for all enclosing elements
@@ -72,5 +75,3 @@ class BaseSAXHandler (xml.sax.handler.ContentHandler, object):
         # Restore namespace context and prepare for new namespace directives
 
         return this_state
-
-

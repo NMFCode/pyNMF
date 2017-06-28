@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<org.alan:simpleTuring xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:org.alan="http://org.alan" headPosition="42" currentState="//@states.0">
-  <states nextState="//@states.1" name="Start"/>
-  <states nextState="//@states.2" name="q0"/>
-  <states nextState="//@states.0" name="q1"/>
-</org.alan:simpleTuring>

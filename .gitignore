@@ -1,2 +1,3 @@
-generat.py
-*.pyc
+**/*.pyc
+**/*.pyo
+.idea/

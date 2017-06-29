@@ -1,2 +1,0 @@
-from ModelElement import ModelElement
-from ModelPropertyChange import ModelPropertyChange

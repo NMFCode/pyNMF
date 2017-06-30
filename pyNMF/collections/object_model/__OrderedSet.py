@@ -1,5 +1,19 @@
 from pyNMF.collections.generic import OrderedSetExpression
 
+
+class CollectionEvent(object):
+    """docstring for CollectionEvent"""
+
+    def __init__(self):
+        super(CollectionEvent, self).__init__()
+
+    def __iadd__(self, other):
+        pass
+
+    def __isub__(self, other):
+        pass
+
+
 class ObservableOrderedSet(OrderedSetExpression):
     """docstring for CompositionOrderedSet"""
 
@@ -11,7 +25,7 @@ class ObservableOrderedSet(OrderedSetExpression):
 
     def Add(self, item):
         if item not in self._items:
-            self.append(item)
+            self._items.append(item)
             return True
         else:
             return False
@@ -21,6 +35,9 @@ class ObservableOrderedSet(OrderedSetExpression):
 
     def Remove(self, item):
         self._items.remove(item)
+
+    def __getitem__(self, item):
+        return self._items[item]
 
     @property
     def Count(self):

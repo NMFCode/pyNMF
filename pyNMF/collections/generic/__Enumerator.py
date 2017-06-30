@@ -1,3 +1,9 @@
+class Enumerable(object):
+
+    @staticmethod
+    def Empty():
+        pass
+
 class Enumerator(object):
     """docstring for Enumerator"""
 

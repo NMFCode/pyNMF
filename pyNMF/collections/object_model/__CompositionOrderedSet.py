@@ -1,19 +1,6 @@
 from pyNMF.collections.object_model import ObservableOrderedSet
 
 
-class CollectionEvent(object):
-    """docstring for CollectionEvent"""
-
-    def __init__(self):
-        super(CollectionEvent, self).__init__()
-
-    def __iadd__(self, other):
-        pass
-
-    def __isub__(self, other):
-        pass
-
-
 class ObservableCompositionOrderedSet(ObservableOrderedSet):
     """docstring for CompositionOrderedSet"""
 
@@ -23,15 +10,15 @@ class ObservableCompositionOrderedSet(ObservableOrderedSet):
 
     def Add(self, item):
         if super(ObservableCompositionOrderedSet, self).Add(item):
-            item.parent = self.parent
+            item.Parent = self.parent
 
     def Clear(self):
         for item in self._items:
             if item.parent is self.parent:
-                item.parent = None
+                item.Parent = None
         super(ObservableCompositionOrderedSet, self).Clear()
 
     def Remove(self, item):
-        if item.parent is self.parent:
-            item.parent = None
+        if item.Parent is self.parent:
+            item.Parent = None
         self.remove(item)

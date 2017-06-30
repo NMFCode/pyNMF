@@ -1,6 +1,8 @@
 class ReferenceCollection(object):
     """docstring for ReferenceCollection"""
 
-    def __init__(self, arg):
+    def __init__(self):
         super(ReferenceCollection, self).__init__()
-        self.arg = arg
+
+    def PropagateCollectionChanges(self):
+        pass

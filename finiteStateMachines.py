@@ -4,19 +4,33 @@
 #     Changes to this file can cause unexpected behaviour
 #     and get lost when the code gets generated again.
 #------------------------------------------------------------------------------
-# Namespace pyNMF_demo.FiniteStateMachines
 from pyNMF import *
-from pyNMF.__decorators import *
 from pyNMF.collections.generic import *
 from pyNMF.collections.object_model import *
+from pyNMF.serialization import *
+
 
 """The default implementation of the FiniteStateMachine class"""
 class FiniteStateMachine(ModelElement):
     """type(__id) == str, type(IdChanging) == System.EventHandler, type(IdChanged) == System.EventHandler, type(__states) == ObservableCompositionOrderedSet, type(__transitions) == ObservableCompositionOrderedSet"""
+    
     """The backing field for the Id property"""
+    @staticmethod
+    def _typeOfID():
+        return str
+    
     """The backing field for the States property"""
+    @staticmethod
+    def _typeOfSTATES():
+        return State
+    
     """The backing field for the Transitions property"""
+    @staticmethod
+    def _typeOfTRANSITIONS():
+        return Transition
+    
     def __init__(self):
+        super(FiniteStateMachine, self).__init__()
         self._ConstructorFieldInitFunction()
         self.__states = ObservableCompositionOrderedSet(self)
         self.__states.CollectionChanging += self._StatesCollectionChanging
@@ -24,6 +38,7 @@ class FiniteStateMachine(ModelElement):
         self.__transitions = ObservableCompositionOrderedSet(self)
         self.__transitions.CollectionChanging += self._TransitionsCollectionChanging
         self.__transitions.CollectionChanged += self._TransitionsCollectionChanged
+    
     
     """The id property"""
     def get_Id(self):
@@ -34,12 +49,13 @@ class FiniteStateMachine(ModelElement):
             old = self.__id
             e = ValueChangedEventArgs(old, value)
             self.OnIdChanging(e)
-            self.OnPropertyChanging('Id', e, _idAttribute)
+            self.OnPropertyChanging('Id', e)
             self.__id = value
             self.OnIdChanged(e)
-            self.OnPropertyChanged('Id', e, _idAttribute)
+            self.OnPropertyChanged('Id', e)
     
     Id = property(fget=get_Id,fset=set_Id,doc="""The id property""")
+    
     
     """The states property"""
     def get_States(self):
@@ -47,11 +63,13 @@ class FiniteStateMachine(ModelElement):
     
     States = property(fget=get_States,doc="""The states property""")
     
+    
     """The transitions property"""
     def get_Transitions(self):
         return self.__transitions
     
     Transitions = property(fget=get_Transitions,doc="""The transitions property""")
+    
     
     """Gets the child model elements of this model element"""
     def get_Children(self):
@@ -59,11 +77,13 @@ class FiniteStateMachine(ModelElement):
     
     Children = property(fget=get_Children,doc="""Gets the child model elements of this model element""")
     
+    
     """Gets the referenced model elements of this model element"""
     def get_ReferencedElements(self):
         return super(FiniteStateMachine, self).ReferencedElements.Concat(FiniteStateMachineReferencedElementsCollection(self))
     
     ReferencedElements = property(fget=get_ReferencedElements,doc="""Gets the referenced model elements of this model element""")
+    
     
     """Gets a value indicating whether the current model element can be identified by an attribute value"""
     def get_IsIdentified(self):
@@ -71,8 +91,11 @@ class FiniteStateMachine(ModelElement):
     
     IsIdentified = property(fget=get_IsIdentified,doc="""Gets a value indicating whether the current model element can be identified by an attribute value""")
     
+    
     """Gets fired before the Id property changes its value"""
+    
     """Gets fired when the Id property changed its value"""
+    
     def OnIdChanging(self, eventArgs):
         """
          Raises the IdChanging event
@@ -82,6 +105,7 @@ class FiniteStateMachine(ModelElement):
         handler = self.IdChanging
         if handler != None:
             handler.Invoke(self, eventArgs)
+    
     
     def OnIdChanged(self, eventArgs):
         """
@@ -93,6 +117,7 @@ class FiniteStateMachine(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def _StatesCollectionChanging(self, sender, e):
         """
          Forwards CollectionChanging notifications for the States property to the parent model element
@@ -100,7 +125,8 @@ class FiniteStateMachine(ModelElement):
          :param sender: The collection that raised the change
          :param e: The original event data
         """
-        self.OnCollectionChanging('States', e, _statesReference)
+        self.OnCollectionChanging('States', e)
+    
     
     def _StatesCollectionChanged(self, sender, e):
         """
@@ -109,7 +135,8 @@ class FiniteStateMachine(ModelElement):
          :param sender: The collection that raised the change
          :param e: The original event data
         """
-        self.OnCollectionChanged('States', e, _statesReference)
+        self.OnCollectionChanged('States', e)
+    
     
     def _TransitionsCollectionChanging(self, sender, e):
         """
@@ -118,7 +145,8 @@ class FiniteStateMachine(ModelElement):
          :param sender: The collection that raised the change
          :param e: The original event data
         """
-        self.OnCollectionChanging('Transitions', e, _transitionsReference)
+        self.OnCollectionChanging('Transitions', e)
+    
     
     def _TransitionsCollectionChanged(self, sender, e):
         """
@@ -127,7 +155,8 @@ class FiniteStateMachine(ModelElement):
          :param sender: The collection that raised the change
          :param e: The original event data
         """
-        self.OnCollectionChanged('Transitions', e, _transitionsReference)
+        self.OnCollectionChanged('Transitions', e)
+    
     
     def GetRelativePathForNonIdentifiedChild(self, element):
         """
@@ -143,6 +172,7 @@ class FiniteStateMachine(ModelElement):
         if transitionsIndex != -1:
             return ModelHelper.CreatePath('transitions', transitionsIndex)
         return super(FiniteStateMachine, self).GetRelativePathForNonIdentifiedChild(element)
+    
     
     def GetModelElementForReference(self, reference, index):
         """
@@ -164,6 +194,7 @@ class FiniteStateMachine(ModelElement):
                 return None
         return super(FiniteStateMachine, self).GetModelElementForReference(reference, index)
     
+    
     def GetAttributeValue(self, attribute, index):
         """
          Resolves the given attribute name
@@ -175,6 +206,7 @@ class FiniteStateMachine(ModelElement):
         if attribute == 'ID':
             return self.Id
         return super(FiniteStateMachine, self).GetAttributeValue(attribute, index)
+    
     
     def GetCollectionForFeature(self, feature):
         """
@@ -189,6 +221,7 @@ class FiniteStateMachine(ModelElement):
             return self.__transitions
         return super(FiniteStateMachine, self).GetCollectionForFeature(feature)
     
+    
     def SetFeature(self, feature, value):
         """
          Sets a value to the given feature
@@ -200,6 +233,7 @@ class FiniteStateMachine(ModelElement):
             self.Id = value
             return 
         super(FiniteStateMachine, self).SetFeature(feature, value)
+    
     
     def GetCompositionName(self, container):
         """
@@ -214,6 +248,7 @@ class FiniteStateMachine(ModelElement):
             return 'transitions'
         return super(FiniteStateMachine, self).GetCompositionName(container)
     
+    
     def ToIdentifierString(self):
         """
          Gets the identifier string for this model element
@@ -222,10 +257,12 @@ class FiniteStateMachine(ModelElement):
         """
         if self.Id is None:
             return None
-        return self.Id.ToString()
+        return str(self.Id)
+    
     
     def CreateUriWithFragment(self, fragment, absolute, baseElement):
         return self.CreateUriFromGlobalIdentifier(fragment, absolute)
+    
     
     def PropagateNewModel(self, newModel, oldModel, subtreeRoot):
         id = self.ToIdentifierString()
@@ -235,11 +272,19 @@ class FiniteStateMachine(ModelElement):
             newModel.RegisterId(id, self)
         super(FiniteStateMachine, self).PropagateNewModel(newModel, oldModel, subtreeRoot)
     
+    
     class FiniteStateMachineChildrenCollection(ReferenceCollection,CollectionExpression,Collection):
         """type(__parent) == FiniteStateMachine"""
+        
+        @staticmethod
+        def _typeOfPARENT():
+            return FiniteStateMachine
+        
         def __init__(self, parent):
+            super(FiniteStateMachineChildrenCollection, self).__init__()
             self._ConstructorFieldInitFunction()
             self.__parent = parent
+        
         
         """Gets the amount of elements contained in this collection"""
         def get_Count(self):
@@ -250,13 +295,16 @@ class FiniteStateMachine(ModelElement):
         
         Count = property(fget=get_Count,doc="""Gets the amount of elements contained in this collection""")
         
+        
         def AttachCore(self):
             self.__parent.States.AsNotifiable().CollectionChanged += self.PropagateCollectionChanges
             self.__parent.Transitions.AsNotifiable().CollectionChanged += self.PropagateCollectionChanges
         
+        
         def DetachCore(self):
             self.__parent.States.AsNotifiable().CollectionChanged -= self.PropagateCollectionChanges
             self.__parent.Transitions.AsNotifiable().CollectionChanged -= self.PropagateCollectionChanges
+        
         
         def Add(self, item):
             """
@@ -271,10 +319,12 @@ class FiniteStateMachine(ModelElement):
             if transitionsCasted != None:
                 self.__parent.Transitions.Add(transitionsCasted)
         
+        
         def Clear(self):
             """Clears the collection and resets all references that implement it."""
             self.__parent.States.Clear()
             self.__parent.Transitions.Clear()
+        
         
         def Contains(self, item):
             """
@@ -288,6 +338,7 @@ class FiniteStateMachine(ModelElement):
             if self.__parent.Transitions.Contains(item):
                 return True
             return False
+        
         
         def CopyTo(self, array, arrayIndex):
             """
@@ -323,6 +374,7 @@ class FiniteStateMachine(ModelElement):
             finally:
                 transitionsEnumerator.Dispose()
         
+        
         def Remove(self, item):
             """
              Removes the given item from the collection
@@ -337,6 +389,7 @@ class FiniteStateMachine(ModelElement):
             if transitionItem != None and self.__parent.Transitions.Remove(transitionItem):
                 return True
             return False
+        
         
         def GetEnumerator(self):
             """
@@ -349,11 +402,19 @@ class FiniteStateMachine(ModelElement):
         def _ConstructorFieldInitFunction(self):
             self.__parent = None
     
+    
     class FiniteStateMachineReferencedElementsCollection(ReferenceCollection,CollectionExpression,Collection):
         """type(__parent) == FiniteStateMachine"""
+        
+        @staticmethod
+        def _typeOfPARENT():
+            return FiniteStateMachine
+        
         def __init__(self, parent):
+            super(FiniteStateMachineReferencedElementsCollection, self).__init__()
             self._ConstructorFieldInitFunction()
             self.__parent = parent
+        
         
         """Gets the amount of elements contained in this collection"""
         def get_Count(self):
@@ -364,13 +425,16 @@ class FiniteStateMachine(ModelElement):
         
         Count = property(fget=get_Count,doc="""Gets the amount of elements contained in this collection""")
         
+        
         def AttachCore(self):
             self.__parent.States.AsNotifiable().CollectionChanged += self.PropagateCollectionChanges
             self.__parent.Transitions.AsNotifiable().CollectionChanged += self.PropagateCollectionChanges
         
+        
         def DetachCore(self):
             self.__parent.States.AsNotifiable().CollectionChanged -= self.PropagateCollectionChanges
             self.__parent.Transitions.AsNotifiable().CollectionChanged -= self.PropagateCollectionChanges
+        
         
         def Add(self, item):
             """
@@ -385,10 +449,12 @@ class FiniteStateMachine(ModelElement):
             if transitionsCasted != None:
                 self.__parent.Transitions.Add(transitionsCasted)
         
+        
         def Clear(self):
             """Clears the collection and resets all references that implement it."""
             self.__parent.States.Clear()
             self.__parent.Transitions.Clear()
+        
         
         def Contains(self, item):
             """
@@ -402,6 +468,7 @@ class FiniteStateMachine(ModelElement):
             if self.__parent.Transitions.Contains(item):
                 return True
             return False
+        
         
         def CopyTo(self, array, arrayIndex):
             """
@@ -437,6 +504,7 @@ class FiniteStateMachine(ModelElement):
             finally:
                 transitionsEnumerator.Dispose()
         
+        
         def Remove(self, item):
             """
              Removes the given item from the collection
@@ -451,6 +519,7 @@ class FiniteStateMachine(ModelElement):
             if transitionItem != None and self.__parent.Transitions.Remove(transitionItem):
                 return True
             return False
+        
         
         def GetEnumerator(self):
             """
@@ -470,17 +539,37 @@ class FiniteStateMachine(ModelElement):
         self.__states = None
         self.__transitions = None
 
+
 class State(ModelElement):
     """type(__isEndState) == bool, type(IsEndStateChanging) == System.EventHandler, type(IsEndStateChanged) == System.EventHandler, type(__isStartState) == bool, type(IsStartStateChanging) == System.EventHandler, type(IsStartStateChanged) == System.EventHandler, type(__name) == str, type(NameChanging) == System.EventHandler, type(NameChanged) == System.EventHandler, type(__transitions) == StateTransitionsCollection"""
+    
     """The backing field for the IsEndState property"""
+    @staticmethod
+    def _typeOfISENDSTATE():
+        return bool
+    
     """The backing field for the IsStartState property"""
+    @staticmethod
+    def _typeOfISSTARTSTATE():
+        return bool
+    
     """The backing field for the Name property"""
+    @staticmethod
+    def _typeOfNAME():
+        return str
+    
     """The backing field for the Transitions property"""
+    @staticmethod
+    def _typeOfTRANSITIONS():
+        return Transition
+    
     def __init__(self):
+        super(State, self).__init__()
         self._ConstructorFieldInitFunction()
         self.__transitions = StateTransitionsCollection(self)
         self.__transitions.CollectionChanging += self._TransitionsCollectionChanging
         self.__transitions.CollectionChanged += self._TransitionsCollectionChanged
+    
     
     """The isEndState property"""
     def get_IsEndState(self):
@@ -491,12 +580,13 @@ class State(ModelElement):
             old = self.__isEndState
             e = ValueChangedEventArgs(old, value)
             self.OnIsEndStateChanging(e)
-            self.OnPropertyChanging('IsEndState', e, _isEndStateAttribute)
+            self.OnPropertyChanging('IsEndState', e)
             self.__isEndState = value
             self.OnIsEndStateChanged(e)
-            self.OnPropertyChanged('IsEndState', e, _isEndStateAttribute)
+            self.OnPropertyChanged('IsEndState', e)
     
     IsEndState = property(fget=get_IsEndState,fset=set_IsEndState,doc="""The isEndState property""")
+    
     
     """The isStartState property"""
     def get_IsStartState(self):
@@ -507,12 +597,13 @@ class State(ModelElement):
             old = self.__isStartState
             e = ValueChangedEventArgs(old, value)
             self.OnIsStartStateChanging(e)
-            self.OnPropertyChanging('IsStartState', e, _isStartStateAttribute)
+            self.OnPropertyChanging('IsStartState', e)
             self.__isStartState = value
             self.OnIsStartStateChanged(e)
-            self.OnPropertyChanged('IsStartState', e, _isStartStateAttribute)
+            self.OnPropertyChanged('IsStartState', e)
     
     IsStartState = property(fget=get_IsStartState,fset=set_IsStartState,doc="""The isStartState property""")
+    
     
     """The name property"""
     def get_Name(self):
@@ -523,12 +614,13 @@ class State(ModelElement):
             old = self.__name
             e = ValueChangedEventArgs(old, value)
             self.OnNameChanging(e)
-            self.OnPropertyChanging('Name', e, _nameAttribute)
+            self.OnPropertyChanging('Name', e)
             self.__name = value
             self.OnNameChanged(e)
-            self.OnPropertyChanged('Name', e, _nameAttribute)
+            self.OnPropertyChanged('Name', e)
     
     Name = property(fget=get_Name,fset=set_Name,doc="""The name property""")
+    
     
     """The transitions property"""
     def get_Transitions(self):
@@ -536,11 +628,13 @@ class State(ModelElement):
     
     Transitions = property(fget=get_Transitions,doc="""The transitions property""")
     
+    
     """Gets the referenced model elements of this model element"""
     def get_ReferencedElements(self):
         return super(State, self).ReferencedElements.Concat(StateReferencedElementsCollection(self))
     
     ReferencedElements = property(fget=get_ReferencedElements,doc="""Gets the referenced model elements of this model element""")
+    
     
     """Gets a value indicating whether the current model element can be identified by an attribute value"""
     def get_IsIdentified(self):
@@ -548,12 +642,19 @@ class State(ModelElement):
     
     IsIdentified = property(fget=get_IsIdentified,doc="""Gets a value indicating whether the current model element can be identified by an attribute value""")
     
+    
     """Gets fired before the IsEndState property changes its value"""
+    
     """Gets fired when the IsEndState property changed its value"""
+    
     """Gets fired before the IsStartState property changes its value"""
+    
     """Gets fired when the IsStartState property changed its value"""
+    
     """Gets fired before the Name property changes its value"""
+    
     """Gets fired when the Name property changed its value"""
+    
     def OnIsEndStateChanging(self, eventArgs):
         """
          Raises the IsEndStateChanging event
@@ -563,6 +664,7 @@ class State(ModelElement):
         handler = self.IsEndStateChanging
         if handler != None:
             handler.Invoke(self, eventArgs)
+    
     
     def OnIsEndStateChanged(self, eventArgs):
         """
@@ -574,6 +676,7 @@ class State(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def OnIsStartStateChanging(self, eventArgs):
         """
          Raises the IsStartStateChanging event
@@ -583,6 +686,7 @@ class State(ModelElement):
         handler = self.IsStartStateChanging
         if handler != None:
             handler.Invoke(self, eventArgs)
+    
     
     def OnIsStartStateChanged(self, eventArgs):
         """
@@ -594,6 +698,7 @@ class State(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def OnNameChanging(self, eventArgs):
         """
          Raises the NameChanging event
@@ -603,6 +708,7 @@ class State(ModelElement):
         handler = self.NameChanging
         if handler != None:
             handler.Invoke(self, eventArgs)
+    
     
     def OnNameChanged(self, eventArgs):
         """
@@ -614,6 +720,7 @@ class State(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def _TransitionsCollectionChanging(self, sender, e):
         """
          Forwards CollectionChanging notifications for the Transitions property to the parent model element
@@ -621,7 +728,8 @@ class State(ModelElement):
          :param sender: The collection that raised the change
          :param e: The original event data
         """
-        self.OnCollectionChanging('Transitions', e, _transitionsReference)
+        self.OnCollectionChanging('Transitions', e)
+    
     
     def _TransitionsCollectionChanged(self, sender, e):
         """
@@ -630,7 +738,8 @@ class State(ModelElement):
          :param sender: The collection that raised the change
          :param e: The original event data
         """
-        self.OnCollectionChanged('Transitions', e, _transitionsReference)
+        self.OnCollectionChanged('Transitions', e)
+    
     
     def GetAttributeValue(self, attribute, index):
         """
@@ -648,6 +757,7 @@ class State(ModelElement):
             return self.Name
         return super(State, self).GetAttributeValue(attribute, index)
     
+    
     def GetCollectionForFeature(self, feature):
         """
          Gets the Model element collection for the given feature
@@ -658,6 +768,7 @@ class State(ModelElement):
         if feature == 'TRANSITIONS':
             return self.__transitions
         return super(State, self).GetCollectionForFeature(feature)
+    
     
     def SetFeature(self, feature, value):
         """
@@ -677,6 +788,7 @@ class State(ModelElement):
             return 
         super(State, self).SetFeature(feature, value)
     
+    
     def ToIdentifierString(self):
         """
          Gets the identifier string for this model element
@@ -685,10 +797,12 @@ class State(ModelElement):
         """
         if self.Name is None:
             return None
-        return self.Name.ToString()
+        return str(self.Name)
+    
     
     def CreateUriWithFragment(self, fragment, absolute, baseElement):
         return self.CreateUriFromGlobalIdentifier(fragment, absolute)
+    
     
     def PropagateNewModel(self, newModel, oldModel, subtreeRoot):
         id = self.ToIdentifierString()
@@ -698,11 +812,19 @@ class State(ModelElement):
             newModel.RegisterId(id, self)
         super(State, self).PropagateNewModel(newModel, oldModel, subtreeRoot)
     
+    
     class StateReferencedElementsCollection(ReferenceCollection,CollectionExpression,Collection):
         """type(__parent) == State"""
+        
+        @staticmethod
+        def _typeOfPARENT():
+            return State
+        
         def __init__(self, parent):
+            super(StateReferencedElementsCollection, self).__init__()
             self._ConstructorFieldInitFunction()
             self.__parent = parent
+        
         
         """Gets the amount of elements contained in this collection"""
         def get_Count(self):
@@ -712,11 +834,14 @@ class State(ModelElement):
         
         Count = property(fget=get_Count,doc="""Gets the amount of elements contained in this collection""")
         
+        
         def AttachCore(self):
             self.__parent.Transitions.AsNotifiable().CollectionChanged += self.PropagateCollectionChanges
         
+        
         def DetachCore(self):
             self.__parent.Transitions.AsNotifiable().CollectionChanged -= self.PropagateCollectionChanges
+        
         
         def Add(self, item):
             """
@@ -728,9 +853,11 @@ class State(ModelElement):
             if transitionsCasted != None:
                 self.__parent.Transitions.Add(transitionsCasted)
         
+        
         def Clear(self):
             """Clears the collection and resets all references that implement it."""
             self.__parent.Transitions.Clear()
+        
         
         def Contains(self, item):
             """
@@ -742,6 +869,7 @@ class State(ModelElement):
             if self.__parent.Transitions.Contains(item):
                 return True
             return False
+        
         
         def CopyTo(self, array, arrayIndex):
             """
@@ -764,6 +892,7 @@ class State(ModelElement):
             finally:
                 transitionsEnumerator.Dispose()
         
+        
         def Remove(self, item):
             """
              Removes the given item from the collection
@@ -775,6 +904,7 @@ class State(ModelElement):
             if transitionItem != None and self.__parent.Transitions.Remove(transitionItem):
                 return True
             return False
+        
         
         def GetEnumerator(self):
             """
@@ -799,14 +929,30 @@ class State(ModelElement):
         self.NameChanged = EventHandler()
         self.__transitions = None
 
+
 class Transition(ModelElement):
     """type(__input) == str, type(InputChanging) == System.EventHandler, type(InputChanged) == System.EventHandler, type(__startState) == State, type(StartStateChanging) == System.EventHandler, type(StartStateChanged) == System.EventHandler, type(__endState) == State, type(EndStateChanging) == System.EventHandler, type(EndStateChanged) == System.EventHandler"""
+    
     """The backing field for the Input property"""
+    @staticmethod
+    def _typeOfINPUT():
+        return str
+    
     """The backing field for the StartState property"""
+    @staticmethod
+    def _typeOfSTARTSTATE():
+        return State
+    
     """The backing field for the EndState property"""
+    @staticmethod
+    def _typeOfENDSTATE():
+        return State
+    
     def __init__(self):
+        super(Transition, self).__init__()
         self._ConstructorFieldInitFunction()
         super(Transition, self).__init__()
+    
     """The input property"""
     def get_Input(self):
         return self.__input
@@ -816,12 +962,13 @@ class Transition(ModelElement):
             old = self.__input
             e = ValueChangedEventArgs(old, value)
             self.OnInputChanging(e)
-            self.OnPropertyChanging('Input', e, _inputAttribute)
+            self.OnPropertyChanging('Input', e)
             self.__input = value
             self.OnInputChanged(e)
-            self.OnPropertyChanged('Input', e, _inputAttribute)
+            self.OnPropertyChanged('Input', e)
     
     Input = property(fget=get_Input,fset=set_Input,doc="""The input property""")
+    
     
     """The startState property"""
     def get_StartState(self):
@@ -832,7 +979,7 @@ class Transition(ModelElement):
             old = self.__startState
             e = ValueChangedEventArgs(old, value)
             self.OnStartStateChanging(e)
-            self.OnPropertyChanging('StartState', e, _startStateReference)
+            self.OnPropertyChanging('StartState', e)
             self.__startState = value
             if old != None:
                 old.Transitions.Remove(self)
@@ -841,9 +988,10 @@ class Transition(ModelElement):
                 value.Transitions.Add(self)
                 value.Deleted += self._OnResetStartState
             self.OnStartStateChanged(e)
-            self.OnPropertyChanged('StartState', e, _startStateReference)
+            self.OnPropertyChanged('StartState', e)
     
     StartState = property(fget=get_StartState,fset=set_StartState,doc="""The startState property""")
+    
     
     """The endState property"""
     def get_EndState(self):
@@ -854,16 +1002,17 @@ class Transition(ModelElement):
             old = self.__endState
             e = ValueChangedEventArgs(old, value)
             self.OnEndStateChanging(e)
-            self.OnPropertyChanging('EndState', e, _endStateReference)
+            self.OnPropertyChanging('EndState', e)
             self.__endState = value
             if old != None:
                 old.Deleted -= self._OnResetEndState
             if value != None:
                 value.Deleted += self._OnResetEndState
             self.OnEndStateChanged(e)
-            self.OnPropertyChanged('EndState', e, _endStateReference)
+            self.OnPropertyChanged('EndState', e)
     
     EndState = property(fget=get_EndState,fset=set_EndState,doc="""The endState property""")
+    
     
     """Gets the referenced model elements of this model element"""
     def get_ReferencedElements(self):
@@ -871,12 +1020,19 @@ class Transition(ModelElement):
     
     ReferencedElements = property(fget=get_ReferencedElements,doc="""Gets the referenced model elements of this model element""")
     
+    
     """Gets fired before the Input property changes its value"""
+    
     """Gets fired when the Input property changed its value"""
+    
     """Gets fired before the StartState property changes its value"""
+    
     """Gets fired when the StartState property changed its value"""
+    
     """Gets fired before the EndState property changes its value"""
+    
     """Gets fired when the EndState property changed its value"""
+    
     def OnInputChanging(self, eventArgs):
         """
          Raises the InputChanging event
@@ -886,6 +1042,7 @@ class Transition(ModelElement):
         handler = self.InputChanging
         if handler != None:
             handler.Invoke(self, eventArgs)
+    
     
     def OnInputChanged(self, eventArgs):
         """
@@ -897,6 +1054,7 @@ class Transition(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def OnStartStateChanging(self, eventArgs):
         """
          Raises the StartStateChanging event
@@ -906,6 +1064,7 @@ class Transition(ModelElement):
         handler = self.StartStateChanging
         if handler != None:
             handler.Invoke(self, eventArgs)
+    
     
     def OnStartStateChanged(self, eventArgs):
         """
@@ -917,6 +1076,7 @@ class Transition(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def _OnResetStartState(self, sender, eventArgs):
         """
          Handles the event that the StartState property must reset
@@ -925,6 +1085,7 @@ class Transition(ModelElement):
          :param eventArgs: The event data for the reset event
         """
         self.StartState = None
+    
     
     def OnEndStateChanging(self, eventArgs):
         """
@@ -936,6 +1097,7 @@ class Transition(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def OnEndStateChanged(self, eventArgs):
         """
          Raises the EndStateChanged event
@@ -946,6 +1108,7 @@ class Transition(ModelElement):
         if handler != None:
             handler.Invoke(self, eventArgs)
     
+    
     def _OnResetEndState(self, sender, eventArgs):
         """
          Handles the event that the EndState property must reset
@@ -954,6 +1117,7 @@ class Transition(ModelElement):
          :param eventArgs: The event data for the reset event
         """
         self.EndState = None
+    
     
     def GetAttributeValue(self, attribute, index):
         """
@@ -966,6 +1130,7 @@ class Transition(ModelElement):
         if attribute == 'INPUT':
             return self.Input
         return super(Transition, self).GetAttributeValue(attribute, index)
+    
     
     def SetFeature(self, feature, value):
         """
@@ -985,11 +1150,19 @@ class Transition(ModelElement):
             return 
         super(Transition, self).SetFeature(feature, value)
     
+    
     class TransitionReferencedElementsCollection(ReferenceCollection,CollectionExpression,Collection):
         """type(__parent) == Transition"""
+        
+        @staticmethod
+        def _typeOfPARENT():
+            return Transition
+        
         def __init__(self, parent):
+            super(TransitionReferencedElementsCollection, self).__init__()
             self._ConstructorFieldInitFunction()
             self.__parent = parent
+        
         
         """Gets the amount of elements contained in this collection"""
         def get_Count(self):
@@ -1002,13 +1175,16 @@ class Transition(ModelElement):
         
         Count = property(fget=get_Count,doc="""Gets the amount of elements contained in this collection""")
         
+        
         def AttachCore(self):
             self.__parent.StartStateChanged += self.PropagateValueChanges
             self.__parent.EndStateChanged += self.PropagateValueChanges
         
+        
         def DetachCore(self):
             self.__parent.StartStateChanged -= self.PropagateValueChanges
             self.__parent.EndStateChanged -= self.PropagateValueChanges
+        
         
         def Add(self, item):
             """
@@ -1027,10 +1203,12 @@ class Transition(ModelElement):
                     self.__parent.EndState = endStateCasted
                     return 
         
+        
         def Clear(self):
             """Clears the collection and resets all references that implement it."""
             self.__parent.StartState = None
             self.__parent.EndState = None
+        
         
         def Contains(self, item):
             """
@@ -1044,6 +1222,7 @@ class Transition(ModelElement):
             if item is self.__parent.EndState:
                 return True
             return False
+        
         
         def CopyTo(self, array, arrayIndex):
             """
@@ -1059,6 +1238,7 @@ class Transition(ModelElement):
                 array[arrayIndex] = self.__parent.EndState
                 arrayIndex = arrayIndex + 1
         
+        
         def Remove(self, item):
             """
              Removes the given item from the collection
@@ -1073,6 +1253,7 @@ class Transition(ModelElement):
                 self.__parent.EndState = None
                 return True
             return False
+        
         
         def GetEnumerator(self):
             """
@@ -1096,11 +1277,16 @@ class Transition(ModelElement):
         self.EndStateChanging = EventHandler()
         self.EndStateChanged = EventHandler()
 
+
 class StateTransitionsCollection(ObservableOppositeOrderedSet):
+    
     def __init__(self, parent):
-        pass
+        super(StateTransitionsCollection, self).__init__(parent)
+    
+    
     def _OnItemDeleted(self, sender, e):
         self.Remove(sender)
+    
     
     def SetOpposite(self, item, parent):
         if parent != None:
@@ -1119,4 +1305,4 @@ def CreateFromDocument(xml_text):
     @param xml_text An XML document.  This should be data (Python 2
     str), or a text (Python 2 unicode)"""
     types = [FiniteStateMachine, State, Transition, StateTransitionsCollection]
-    return serialize(xml_text, types)
+    return deserialize(xml_text, types)

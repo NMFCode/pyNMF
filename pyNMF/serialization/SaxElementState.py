@@ -1,5 +1,6 @@
 from pdb import set_trace as bp
-from XmlIdentifierDelay import XmlAddToCollectionDelay, XmlSetPropertyDelay
+from __XmlSetPropertyDelay import XmlSetPropertyDelay
+from pyNMF import ModelElement
 
 # def bp():
 #     pass
@@ -22,7 +23,6 @@ class SAXElementState(object):
         self.elementBinding = None
         self.parentState = kw.get('parent_state', None)
         self.__contentHandler = kw.get('content_handler', None)
-        self._collectionAdditions = []
         self._propertySettings = []
         self.__content = []
 
@@ -34,28 +34,24 @@ class SAXElementState(object):
 
         xsiAttrs = filter(lambda x: x[0] == XSI_NS, attrs.getNames())
         for attr in xsiAttrs:
-            if (attr[1] == 'type'):
+            if attr[1] == 'type':
                 cls_name = attrs.getValue(attr).upper()
-                if (cls_name in self.__contentHandler.types_dict):
+                if cls_name in self.__contentHandler.types_dict:
                     self.bindingInstance = self.__contentHandler.types_dict[cls_name](
                         *constructor_parameters)
                 else:
                     raise Exception("Unkown type " + cls_name + " when trying to resolve xsi type")
-            elif (attr[1] == 'nil'):
-                # TODO
+            elif attr[1] == 'nil':
                 pass
             else:
                 raise Exception("Unkown XSI Attribute " + attr[1])
 
-        if self.bindingInstance == None:
+        if self.bindingInstance is None:
             self.bindingInstance = type_class(*constructor_parameters)
 
         self.parseAttributes(attrs)
 
         return self.bindingInstance
-
-    def addCollectionAdditionDelay(self, collection):
-        self._collectionAdditions.append(XmlAddToCollectionDelay(self, collection))
 
     def addPropertySettingDelay(self, propertyName, value):
         self._propertySettings.append(XmlSetPropertyDelay(self, propertyName, value))
@@ -76,7 +72,7 @@ class SAXElementState(object):
     def endBindingElement(self):
         """Perform any end-of-element processing."""
         # at this point only the element instance exists, it is not populated yet
-        return (self.bindingInstance, self._collectionAdditions, self._propertySettings)
+        return self.bindingInstance, self._propertySettings
 
     # decides if an attribute can be handled or should be later
     def parseAttributes(self, attrs):
@@ -85,52 +81,38 @@ class SAXElementState(object):
         for attr_name in attrs.getNames():
 
             # Ignore xmlns and xsi attributes
-            if (attr_name[0] is not None and attr_name[0] in (XMI_NS, XSI_NS)):
+            if attr_name[0] is not None and attr_name[0] in (XMI_NS, XSI_NS):
                 # print("XMI attr: " + attr_name[0] + " " + attr_name[1])
                 # Ignore, we already handled those
                 continue
             value = attrs.getValue(attr_name)
-            if (value[:2] == '//'):
-                self.addPropertySettingDelay(attr_name, value)
-            else:
-                self.parseAttribute(attr_name, value)
+            self.parseAttribute(attr_name, value)
 
     def parseAttribute(self, attr, value):
-        if (attr == None):
+        if attr is None:
             return
-        if (isinstance(attr, tuple)):
-            if (attr[0] is not None and attr[0] in (XMI_NS, XSI_NS)):
+        if isinstance(attr, tuple):
+            if attr[0] is not None and attr[0] in (XMI_NS, XSI_NS):
                 print("Error: Cannot set xsi/xmi attributes after instance initialization")
                 return
             attr = attr[1]  # ignore namespace
 
-        if value[:2] == '//':
-            if value[2] == '@':
-                # TODO: not only support parent container references... REDO when Model Repositroy is implemented
-                value = (value[3:]).encode('ascii', errors='ignore')
-                attr_container, index = value.split('.')
-                index = int(index)
-                attr_container = attr_container.upper()
-                attr_container = str(attr_container)
-                try:
-                    value = self.parentState.bindingInstance.GetModelElementForReference(
-                        attr_container, index)
-                except Exception, e:
-                    from pdb import set_trace
-                    set_trace()
-                    value = self.parentState.bindingInstance.GetModelElementForReference(
-                        attr_container, index)
-                    raise e
-            else:
-                print("ERROR: XLinks are not supported, skipping (" + self.value + ")")
-                return
+        plain_name = attr.encode('ascii', errors='ignore')
+        plain_name = plain_name.upper()
+
+        type = object
+        fullAttrTypeName = "_typeOf" + plain_name
+        if hasattr(self.bindingInstance, fullAttrTypeName):
+            type = getattr(self.bindingInstance, fullAttrTypeName)()
+        if issubclass(type, ModelElement):
+            self.addPropertySettingDelay(plain_name, value)
         else:
-            if (isinstance(value, unicode)):
+            if isinstance(value, unicode):
                 value = str(value)
             # is bool or number
-            if (value in ('True', 'true')):
+            if value in ('True', 'true'):
                 value = True
-            elif (value in ('False', 'false')):
+            elif value in ('False', 'false'):
                 value = False
             else:
                 tmpv = value
@@ -139,15 +121,12 @@ class SAXElementState(object):
                 except ValueError, e:
                     pass
                 else:
-                    if (tmpv.is_integer()):
+                    if tmpv.is_integer():
                         value = int(tmpv)
                     else:
                         value = tmpv
 
-        # setattr(self.saxState.bindingInstance, self.propertyName, self.value)
-        plain_name = attr.encode('ascii', errors='ignore')
-        plain_name = plain_name.upper()
-        self.bindingInstance.SetFeature(plain_name, value)
+            self.bindingInstance.SetFeature(plain_name, value)
 
     def contentHandler(self):
         """Reference to the xml.sax.handler.ContentHandler that is processing the document."""

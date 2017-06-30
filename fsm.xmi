@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fsm:FiniteStateMachine xmi:version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Test" xmlns:xmi="http://www.omg.org/XMI" xmlns:fsm="platform:/plugin/FiniteStateMachines/model/FiniteStateMachines.ecore">
+  <states name="q0" transitions="#//@transitions.2 #//@transitions.10 #//@transitions.16" />
+  <states name="q1" transitions="#//@transitions.14" />
+  <states name="q2" transitions="#//@transitions.3 #//@transitions.6 #//@transitions.12" />
+  <states name="q3" transitions="#//@transitions.1 #//@transitions.5 #//@transitions.8 #//@transitions.15" />
+  <states isEndState="True" name="q4" transitions="#//@transitions.19" />
+  <states name="q5" transitions="#//@transitions.4" />
+  <states name="q6" transitions="#//@transitions.0 #//@transitions.17 #//@transitions.18" />
+  <states name="q7" transitions="#//@transitions.11" />
+  <states isEndState="True" name="q8" />
+  <states name="q9" transitions="#//@transitions.7 #//@transitions.9 #//@transitions.13" />
+  <transitions input="e" startState="q6" endState="q0" />
+  <transitions input="e" startState="q3" endState="q8" />
+  <transitions input="e" startState="q0" endState="q5" />
+  <transitions input="b" startState="q2" endState="q1" />
+  <transitions input="e" startState="q5" endState="q9" />
+  <transitions input="c" startState="q3" endState="q9" />
+  <transitions input="c" startState="q2" endState="q7" />
+  <transitions input="a" startState="q9" endState="q9" />
+  <transitions input="d" startState="q3" endState="q4" />
+  <transitions input="f" startState="q9" endState="q5" />
+  <transitions input="d" startState="q0" endState="q1" />
+  <transitions input="f" startState="q7" endState="q9" />
+  <transitions input="d" startState="q2" endState="q8" />
+  <transitions input="b" startState="q9" endState="q3" />
+  <transitions input="e" startState="q1" endState="q7" />
+  <transitions input="b" startState="q3" endState="q0" />
+  <transitions input="f" startState="q0" endState="q4" />
+  <transitions input="a" startState="q6" endState="q6" />
+  <transitions input="f" startState="q6" endState="q5" />
+  <transitions input="f" startState="q4" endState="q0" />
+</fsm:FiniteStateMachine>

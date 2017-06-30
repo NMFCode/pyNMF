@@ -1,5 +1,7 @@
 from SaxElementState import SAXElementState
 from BaseSAXHandler import BaseSAXHandler
+from __XmlSetPropertyDelay import XmlSetPropertyDelay
+from pyNMF import Model
 
 
 class ModelContentHandler(BaseSAXHandler):
@@ -9,9 +11,9 @@ class ModelContentHandler(BaseSAXHandler):
         # delayAttributeStates gets iterated over when done parsing.
         # All the attributes are set as a last step to ensure,
         # references to instances can be resolved (see endDocument)
-        self.delayedPropertySettings = []
-        self.delayedCollectionAdditions = []
+        self.__delays = []
         self.rootObject = None
+        self.model = Model()
 
     def startElementNS(self, name, qname, attrs):
         """Parses an XML element"""
@@ -20,57 +22,55 @@ class ModelContentHandler(BaseSAXHandler):
 
         # cannot handle unicode named attributes, convert everything to ascii
         plain_name = name[1].encode('ascii', errors='ignore')
-
         # The uppercase convention is in the C# code, too.
         # (not used necessarily, only used to find out what kind of element we're dealing with here)
         plain_name = plain_name.upper()
-        print("startElementNS for: " + str(name))
 
-        # get the type arguments for plain_name
-        # (in case of a collection/generic this will be the type it contains e.g. List<TypeArgument>)
-        # this will also be created for the root element but discarded since the root does not have a parent,
-        # so ignore in case of root
-        fullAttrTypeName = "typeArgsOf" + plain_name  # typeArgsOfSOMETHING gets automatically generated into the result
-
-        if hasattr(parent_state.elementBinding,
-                   fullAttrTypeName):  # check if parent knows what type the element should be
-            ele_bind = getattr(parent_state.elementBinding, fullAttrTypeName)
-            if (len(ele_bind) != 1):
-                raise Exception(
-                    "Type " + plain_name + " has more than one type argument. Unkown collection type.")
-            thisState.elementBinding = ele_bind[0]
-
-            # since it's a child it has to be contained in a collection,
-            # resolve the collection the bindin_instance will be put in
-            # maybe change after model repositories are implemented
-            thisState.addCollectionAdditionDelay(
-                thisState.parentState.bindingInstance.GetCollectionForFeature(plain_name))
-
-        elif (plain_name in self.types_dict):  # is root element
-            print(plain_name + " is the root element")
-            thisState.elementBinding = self.types_dict[plain_name]
+        if parent_state.elementBinding is None:
+            # root element
+            thisState.elementBinding = self.types_dict.get(plain_name)
         else:
+            # get the type arguments for plain_name
+            # (in case of a collection/generic this will be the type it contains e.g. List<TypeArgument>)
+            # this will also be created for the root element but discarded since the root does not have a parent,
+            # so ignore in case of root
+            fullAttrTypeName = "_typeOf" + plain_name  # typeArgsOfSOMETHING gets automatically generated into the result
+
+            if hasattr(parent_state.elementBinding,
+                       fullAttrTypeName):  # check if parent knows what type the element should be
+                thisState.elementBinding = getattr(parent_state.elementBinding, fullAttrTypeName)()
+
+        if thisState.elementBinding is None:
             raise Exception("FATAL ERROR: Unkown type " + name[1] + "!")
 
         binding_object = thisState.startBindingElement(thisState.elementBinding, attrs)
 
-        if (self.rootObject is None):
+        if self.rootObject is None:
             self.rootObject = binding_object
-
+            self.rootObject.Parent = self.model
             # replace dummy parent state of root with itself
-            # TODO: AFTER MODEL REPOSITORY RESOLVE WAS IMPLEMENTED
-            # REMOVE THIS/ THIS IS ONLY A TEMPORARY WORKAROUND
             thisState.parentState = thisState
+        else:
+            parent = thisState.parentState.bindingInstance
+            collection = parent.GetCollectionForFeature(plain_name)
+            if collection is not None:
+                collection.Add(binding_object)
+            else:
+                parent.SetFeature(plain_name, binding_object)
 
     def endElementNS(self, name, qname):
-        thisState = super(ModelContentHandler, self).endElementNS(name, qname)
-        bindingObject, newCollectionAdditions, newPropertySettings = thisState.endBindingElement()
-        self.delayedCollectionAdditions += newCollectionAdditions
-        self.delayedPropertySettings += newPropertySettings
+        this_state = super(ModelContentHandler, self).endElementNS(name, qname)
+        binding_object, newPropertySettings = this_state.endBindingElement()
+        self.__delays += newPropertySettings
+
+    def resolve(self, value):
+        if value[0:3] == '#//':
+            return self.rootObject.Resolve(value[3:])
+        elif '#' in value:
+            raise Exception("References across file boundaries currently not supported")
+        else:
+            return self.model.ResolveId(value)
 
     def endDocument(self):
-        for d in self.delayedCollectionAdditions:
-            d.execute()
-
-        for d in self.delayedPropertySettings:
-            d.execute()
+        for d in self.__delays:
+            d.execute(self.resolve)
